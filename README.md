@@ -6,7 +6,7 @@ extracting and indexing their content, and asking an AI chatbot questions about 
 - **Frontend:** Plain HTML, CSS, JavaScript (no framework, no build step)
 - **Backend:** Node.js + Express
 - **Database:** MySQL
-- **Chatbot:** Claude API (Anthropic), grounded in each file's extracted text
+- **Chatbot:** Gemini studio API , grounded in each file's extracted text
 
 ## Features
 
