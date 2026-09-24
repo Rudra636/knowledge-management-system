@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stacks — Knowledge Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 6C4 4.89543 4.89543 4 6 4H14V28H6C4.89543 28 4 27.1046 4 26V6Z" fill="currentColor"/>
+        <path d="M18 4H26C27.1046 4 28 4.89543 28 6V26C28 27.1046 27.1046 28 26 28H18V4Z" fill="currentColor" fill-opacity="0.45"/>
+      </svg>
+      <span class="brand-name">Stacks</span>
+    </div>
+
+    <div class="topbar-search">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M14 14L18 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search titles, contents, summaries…" />
+    </div>
+
+    <button class="btn btn-primary" id="openUploadBtn">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Add file
+    </button>
+  </header>
+
+  <div class="body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <p class="sidebar-title">Shelves</p>
+        <nav class="category-list" id="categoryList">
+          <button class="category-item is-active" data-category="">
+            <span class="dot" style="background:#8C6D2F"></span> All files
+            <span class="count" id="countAll">0</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-title">Ask the archive</p>
+        <p class="sidebar-hint">Chat about a single file, or ask a question across everything you've stored.</p>
+        <button class="btn btn-ghost btn-block" id="openGeneralChatBtn">Open general chat</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <div class="main-header">
+        <h1 id="mainTitle">All files</h1>
+        <p class="muted" id="mainSubtitle">Everything you've added to the knowledge base.</p>
+      </div>
+
+      <div class="file-grid" id="fileGrid">
+        <!-- file cards injected here -->
+      </div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="12" width="32" height="26" rx="2" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M8 18H40" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M16 12V8C16 6.89543 16.8954 6 18 6H30C31.1046 6 32 6.89543 32 8V12" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+        <h3>The shelf is empty</h3>
+        <p>Add a file to start building your knowledge base. Once it's in, ask the chatbot anything about it.</p>
+        <button class="btn btn-primary" id="emptyUploadBtn">Add your first file</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Upload modal -->
+<div class="modal-backdrop" id="uploadModal" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add a file</h2>
+      <button class="icon-btn" id="closeUploadModal" aria-label="Close">&times;</button>
+    </div>
+    <form id="uploadForm">
+      <label class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" hidden />
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 27V11M20 11L14 17M20 11L26 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 27V30C8 31.1046 8.89543 32 10 32H30C31.1046 32 32 31.1046 32 30V27" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span id="dropzoneLabel">Click to choose a file, or drag one here</span>
+        <span class="dropzone-hint">Any file type — PDF, Word, Excel, text, images, and more</span>
+      </label>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="categoryInput">Shelf / category</label>
+          <input type="text" id="categoryInput" placeholder="e.g. Research, Contracts, Notes" />
+        </div>
+        <div class="field">
+          <label for="tagsInput">Tags</label>
+          <input type="text" id="tagsInput" placeholder="comma, separated, tags" />
+        </div>
+      </div>
+
+      <div class="upload-status" id="uploadStatus"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelUploadBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="submitUploadBtn">Upload &amp; process</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- File detail / reading panel -->
+<div class="drawer-backdrop" id="fileDrawerBackdrop" hidden>
+  <div class="drawer" id="fileDrawer">
+    <div class="drawer-header">
+      <div>
+        <p class="drawer-eyebrow" id="drawerCategory">Category</p>
+        <h2 id="drawerFileName">File name</h2>
+      </div>
+      <button class="icon-btn" id="closeDrawerBtn" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="drawer-tabs">
+      <button class="drawer-tab is-active" data-tab="overview">Overview</button>
+      <button class="drawer-tab" data-tab="content">Full text</button>
+      <button class="drawer-tab" data-tab="chat">Chat about this file</button>
+    </div>
+
+    <div class="drawer-body">
+
+      <section class="tab-panel is-active" data-panel="overview">
+        <div class="meta-row" id="drawerMeta"></div>
+
+        <h3>Summary</h3>
+        <p class="summary-text" id="drawerSummary">No summary yet.</p>
+
+        <h3>Key points</h3>
+        <ul class="keypoints-list" id="drawerKeyPoints"></ul>
+
+        <div class="drawer-footer-actions">
+          <button class="btn btn-ghost" id="downloadFileBtn">Download original</button>
+          <button class="btn btn-danger-ghost" id="deleteFileBtn">Delete file</button>
+        </div>
+      </section>
+
+      <section class="tab-panel" data-panel="content">
+        <pre class="content-pre" id="drawerContent">No extracted text available.</pre>
+      </section>
+
+      <section class="tab-panel" data-panel="chat">
+        <div class="chat-window" id="fileChatWindow"></div>
+        <form class="chat-input-row" id="fileChatForm">
+          <input type="text" id="fileChatInput" placeholder="Ask about this file…" autocomplete="off" />
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- General chat panel -->
+<div class="drawer-backdrop" id="generalChatBackdrop" hidden>
+  <div class="drawer" id="generalChatDrawer">
+    <div class="drawer-header">
+      <div>
+        <p class="drawer-eyebrow">Across your archive</p>
+        <h2>General chat</h2>
+      </div>
+      <button class="icon-btn" id="closeGeneralChatBtn" aria-label="Close">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <div class="chat-window" id="generalChatWindow"></div>
+      <form class="chat-input-row" id="generalChatForm">
+        <input type="text" id="generalChatInput" placeholder="Ask something about your recent files…" autocomplete="off" />
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="js/app.js"></script>
+<script src="js/chatbot.js"></script>
+</body>
+</html>
